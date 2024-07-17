@@ -1,85 +1,126 @@
 import tkinter as tk
+from tkinter import messagebox, ttk
+import re
 
 class Application(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("Registration Form")
-        self.geometry("500x400")
-        self.configure(background="#f0f0f0")  # Light gray background
+        self.geometry("600x700")
+        self.configure(background="#f0f0f0")
 
-        # Create frames
-        self.user_info_frame = tk.Frame(self, bg="#ccefff")  # Light blue background
-        self.registration_frame = tk.Frame(self, bg="#ccefff")  # Light blue background
-        self.terms_frame = tk.Frame(self, bg="#ccefff")  # Light blue background
+        self.style = ttk.Style()
+        self.style.theme_use('clam')
+        self.style.configure('TButton', background='#007bff', foreground='white')
+        self.style.map('TButton', background=[('active', '#0056b3')])
 
-        # Create user information fields
-        tk.Label(self.user_info_frame, text="Tên:", fg="blue").grid(row=0, column=0)  # Blue text
-        self.name_entry = tk.Entry(self.user_info_frame, width=20, bg="#fff", fg="black")  # White background, black text
-        self.name_entry.grid(row=0, column=1)
+        self.create_widgets()
 
-        tk.Label(self.user_info_frame, text="Họ:", fg="blue").grid(row=1, column=0)  # Blue text
-        self.surname_entry = tk.Entry(self.user_info_frame, width=20, bg="#fff", fg="black")  # White background, black text
-        self.surname_entry.grid(row=1, column=1)
+    def create_widgets(self):
+        # Create main frame
+        main_frame = ttk.Frame(self, padding="10")
+        main_frame.pack(fill=tk.BOTH, expand=True)
 
-        tk.Label(self.user_info_frame, text="Chức danh:", fg="blue").grid(row=2, column=0)  # Blue text
-        self.position_entry = tk.Entry(self.user_info_frame, width=20, bg="#fff", fg="black")  # White background, black text
-        self.position_entry.grid(row=2, column=1)
-
-        tk.Label(self.user_info_frame, text="Tuổi:", fg="blue").grid(row=3, column=0)  # Blue text
-        self.age_entry = tk.Entry(self.user_info_frame, width=20, bg="#fff", fg="black")  # White background, black text
-        self.age_entry.grid(row=3, column=1)
-
-        tk.Label(self.user_info_frame, text="Quốc tịch:", fg="blue").grid(row=4, column=0)  # Blue text
-        self.nationality_entry = tk.Entry(self.user_info_frame, width=20, bg="#fff", fg="black")  # White background, black text
-        self.nationality_entry.grid(row=4, column=1)
-
-        # Create registration fields
-        tk.Label(self.registration_frame, text="Trạng thái đăng ký:", fg="blue").grid(row=0, column=0)  # Blue text
-        self.registration_status_var = tk.IntVar()
-        tk.Checkbutton(self.registration_frame, variable=self.registration_status_var, bg="#ccefff", fg="blue").grid(row=0, column=1)  # Light blue background, blue text
-
-        tk.Label(self.registration_frame, text="Số khóa học đã hoàn thành:", fg="blue").grid(row=1, column=0)  # Blue text
-        self.completed_courses_var = tk.IntVar()
-        tk.Spinbox(self.registration_frame, from_=0, to=10, width=5, textvariable=self.completed_courses_var, bg="#fff", fg="black").grid(row=1, column=1)  # White background, black text
-
-        tk.Label(self.registration_frame, text="Học kỳ:", fg="blue").grid(row=2, column=0)  # Blue text
-        self.semester_var = tk.IntVar()
-        tk.Spinbox(self.registration_frame, from_=1, to=10, width=5, textvariable=self.semester_var, bg="#fff", fg="black").grid(row=2, column=1)  # White background, black text
-
-        # Create terms and conditions field
-        tk.Label(self.terms_frame, text="Chấp nhận các điều khoản và điều kiện:", fg="blue").grid(row=0, column=0)  # Blue text
-        self.terms_var = tk.IntVar()
-        tk.Checkbutton(self.terms_frame, variable=self.terms_var, bg="#ccefff", fg="blue").grid(row=0, column=1)  # Light blue background, blue text
-
-        # Pack frames
+        # Create and pack frames
+        self.user_info_frame = ttk.LabelFrame(main_frame, text="User Information", padding="10")
         self.user_info_frame.pack(fill="x", pady=10)
+
+        self.registration_frame = ttk.LabelFrame(main_frame, text="Registration Details", padding="10")
         self.registration_frame.pack(fill="x", pady=10)
+
+        self.terms_frame = ttk.LabelFrame(main_frame, text="Terms and Conditions", padding="10")
         self.terms_frame.pack(fill="x", pady=10)
 
-        # Create submit and clean buttons
-        self.submit_button = tk.Button(self, text="Gửi", command=self.submit_data, bg="#007bff", fg="white")  # Blue background, white text
-        self.submit_button.pack(pady=10)
-        self.clean_button = tk.Button(self, text="Xóa", command=self.clear_all, bg="#007bff", fg="white")  # Blue background, white text
-        self.clean_button.pack(pady=10)
-        def submit_data(self):
-         print("Data submitted!")
+        # User Information Fields
+        self.create_entry("Tên:", "name_entry")
+        self.create_entry("Họ:", "surname_entry")
+        self.create_entry("Chức danh:", "position_entry")
+        self.create_entry("Tuổi:", "age_entry")
+        self.create_entry("Quốc tịch:", "nationality_entry")
+        self.create_entry("Email:", "email_entry")
+
+        # Registration Fields
+        ttk.Label(self.registration_frame, text="Trạng thái đăng ký:").grid(row=0, column=0, sticky="w")
+        self.registration_status_var = tk.StringVar(value="Not Registered")
+        ttk.Radiobutton(self.registration_frame, text="Đã đăng ký", variable=self.registration_status_var, value="Registered").grid(row=0, column=1)
+        ttk.Radiobutton(self.registration_frame, text="Chưa đăng ký", variable=self.registration_status_var, value="Not Registered").grid(row=0, column=2)
+
+        ttk.Label(self.registration_frame, text="Số khóa học đã hoàn thành:").grid(row=1, column=0, sticky="w")
+        self.completed_courses_var = tk.IntVar()
+        ttk.Spinbox(self.registration_frame, from_=0, to=10, width=5, textvariable=self.completed_courses_var).grid(row=1, column=1)
+
+        ttk.Label(self.registration_frame, text="Học kỳ:").grid(row=2, column=0, sticky="w")
+        self.semester_var = tk.IntVar(value=1)
+        ttk.Spinbox(self.registration_frame, from_=1, to=10, width=5, textvariable=self.semester_var).grid(row=2, column=1)
+
+        # Terms and Conditions
+        self.terms_var = tk.BooleanVar()
+        ttk.Checkbutton(self.terms_frame, text="Tôi đồng ý với các điều khoản và điều kiện", variable=self.terms_var).pack()
+
+        # Buttons
+        button_frame = ttk.Frame(main_frame)
+        button_frame.pack(pady=10)
+
+        self.submit_button = ttk.Button(button_frame, text="Gửi", command=self.submit_data)
+        self.submit_button.pack(side=tk.LEFT, padx=5)
+
+        self.clear_button = ttk.Button(button_frame, text="Xóa", command=self.clear_all)
+        self.clear_button.pack(side=tk.LEFT, padx=5)
+
+        # Progress bar
+        self.progress = ttk.Progressbar(main_frame, orient="horizontal", length=200, mode="determinate")
+        self.progress.pack(pady=10)
+
+    def create_entry(self, label, attribute_name):
+        ttk.Label(self.user_info_frame, text=label).pack(anchor="w")
+        entry = ttk.Entry(self.user_info_frame, width=30)
+        entry.pack(fill="x", padx=5, pady=5)
+        setattr(self, attribute_name, entry)
+
+    def submit_data(self):
+        if not self.validate_fields():
+            return
+
+        self.progress["value"] = 0
+        self.update_idletasks()
+
+        # Simulate processing
+        for i in range(5):
+            self.progress["value"] += 20
+            self.update_idletasks()
+            self.after(500)  # Wait for 500 ms
+
+        messagebox.showinfo("Success", "Data submitted successfully!")
+        self.progress["value"] = 0
 
     def clear_all(self):
-        # Clear all user information entries
-        self.name_entry.delete(0, tk.END)
-        self.surname_entry.delete(0, tk.END)
-        # ... (similar code to clear all other user information entries)
+        for attr in ["name_entry", "surname_entry", "position_entry", "age_entry", "nationality_entry", "email_entry"]:
+            getattr(self, attr).delete(0, tk.END)
 
-        # Clear registration fields (if applicable)
-        self.registration_status_var.set(0)  # Reset checkbox selection
-        self.completed_courses_var.set(0)  # Set completed courses to 0
-        self.semester_var.set(0)  # Set semester to 0
+        self.registration_status_var.set("Not Registered")
+        self.completed_courses_var.set(0)
+        self.semester_var.set(1)
+        self.terms_var.set(False)
+        self.progress["value"] = 0
 
-        # Clear terms checkbox selection
-        self.terms_var.set(0)
-    def submit_data(self):
-        print("Data submitted!")
-       
+    def validate_fields(self):
+        if not all([self.name_entry.get(), self.surname_entry.get(), self.age_entry.get(), self.email_entry.get()]):
+            messagebox.showerror("Error", "Please fill in all required fields.")
+            return False
+
+        if not self.age_entry.get().isdigit():
+            messagebox.showerror("Error", "Age must be a number.")
+            return False
+
+        if not re.match(r"[^@]+@[^@]+\.[^@]+", self.email_entry.get()):
+            messagebox.showerror("Error", "Please enter a valid email address.")
+            return False
+
+        if not self.terms_var.get():
+            messagebox.showerror("Error", "You must agree to the terms and conditions.")
+            return False
+
+        return True
 
 if __name__ == "__main__":
     app = Application()
